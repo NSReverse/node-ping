@@ -14,8 +14,7 @@ io.on('connection', function(socket){
   socket.on('request-ping', function(params) {
     setTimeout(() => {
       ping.promise.probe(params.host, {
-        timeout: 10,
-        extra: ['-i 2']
+        timeout: 10
       }).then(function (res) {
         if (res.alive) {
           socket.emit('receive-ping', params.host + ' > Response made - ' + res.time + 'ms');
