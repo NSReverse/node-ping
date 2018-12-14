@@ -17,21 +17,43 @@
   <body>
     <ul id="messages"></ul>
     <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+      <input id="m" autocomplete="off" /><button id="submit">Send</button>
     </form>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(function () {
+        var isPinging = false;
+        var count = 0;
+
         var socket = io();
         $('form').submit(function(){
-          socket.emit('chat message', $('#m').val());
-          $('#m').val('');
+          isPinging = !isPinging;
+
+          if (isPinging) {
+            $('#submit').text('Cancel');
+            count = 0;
+            sendPing($('#m').val());
+          }
+          else {
+            $('#submit').text('Send');
+          }
+
           return false;
         });
-        socket.on('chat message', function(msg){
-          $('#messages').append($('<li>').text(msg));
+
+        var sendPing = function(host) {
+          socket.emit('request-ping', { host: host, count: 1});
+        };
+
+        socket.on('receive-ping', function(msg){
+          $('#messages').append($('<li>').text('seq ' + count + ': ' + msg));
           window.scrollTo(0, document.body.scrollHeight);
+
+          if (isPinging) {
+            count++;
+            sendPing($('#m').val());
+          }
         });
       });
     </script>
