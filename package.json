@@ -5,7 +5,10 @@
   "dependencies": {
     "express": "^4.15.2",
     "ping": "^0.2.2",
-    "socket.io": "^1.7.3"
+    "socket.io": "^1.7.3",
+    "net-ping": "^1.2.3",
+    "net-ping-hr": "^2.0.0",
+    "raw-socket": "^1.6.4"
   },
   "scripts": {
     "start": "node index.js"
