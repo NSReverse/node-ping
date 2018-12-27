@@ -12,6 +12,7 @@
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
       #messages { margin-bottom: 40px }
+      .active { background: rgb(255, 35, 35); color: white; }
     </style>
   </head>
   <body>
@@ -32,11 +33,13 @@
 
           if (isPinging) {
             $('#submit').text('Cancel');
+	    $('#submit').addClass('active');
             count = 0;
             sendPing($('#m').val());
           }
           else {
             $('#submit').text('Send');
+            $('#submit').removeClass('active');
           }
 
           return false;
