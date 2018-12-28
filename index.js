@@ -32,11 +32,11 @@ io.on('connection', function(socket){
 
           if (error) {
               console.log (target + " > " + error.toString ());
-              socket.emit('receive-ping', params.host + ": " + error.toString());
+              socket.emit('receive-ping', params.host + " > " + error.toString());
           }
           else {
               console.log (target + " >  Response Received - " + formattedMs + "ms.");
-              socket.emit('receive-ping', params.host + ": Response Received - " + formattedMs + "ms.");
+              socket.emit('receive-ping', params.host + " > Response Received - " + formattedMs + "ms.");
           }
       });
     }, 750);
