@@ -29,13 +29,13 @@ io.on('connection', function(socket){
      session.pingHost (params.host, function (error, target, sent, received) {
           var rawMs = received - sent;
           var formattedMs = parseFloat(Math.round(rawMs * 100) / 100).toFixed(2);
-      
+
           if (error) {
-              console.log (target + ": " + error.toString ());
+              console.log (target + " > " + error.toString ());
               socket.emit('receive-ping', params.host + ": " + error.toString());
           }
           else {
-              console.log (target + ": Response Received - " + formattedMs + "ms.");
+              console.log (target + " >  Response Received - " + formattedMs + "ms.");
               socket.emit('receive-ping', params.host + ": Response Received - " + formattedMs + "ms.");
           }
       });
