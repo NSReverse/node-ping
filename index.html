@@ -24,6 +24,8 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(function () {
+	var pingLogs = [];
+
         var isPinging = false;
         var count = 0;
 
@@ -32,6 +34,7 @@
           isPinging = !isPinging;
 
           if (isPinging) {
+            $('li').remove();
             $('#submit').text('Cancel');
 	    $('#submit').addClass('active');
             count = 0;
@@ -40,17 +43,22 @@
           else {
             $('#submit').text('Send');
             $('#submit').removeClass('active');
+	    socket.emit('ping-complete', pingLogs);
           }
 
           return false;
         });
 
         var sendPing = function(host) {
-          socket.emit('request-ping', { host: host, count: 1});
+          socket.emit('request-ping', { host: host, count: 1 });
         };
 
         socket.on('receive-ping', function(msg){
-          $('#messages').append($('<li>').text('seq ' + count + ': ' + msg));
+	  var currentMessage = 'seq ' + count + ': ' + msg;
+
+	  pingLogs.push(currentMessage + '\n');
+
+          $('#messages').append($('<li>').text(currentMessage));
           window.scrollTo(0, document.body.scrollHeight);
 
           if (isPinging) {
