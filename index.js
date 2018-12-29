@@ -13,10 +13,10 @@ app.get('/', function(req, res) {
 });
 
 app.get('/logs', function(req, res) {
-  res.sendFile(path.resolve(__dirname + '/../APPLICATION_DATA/logs/index.html'));
+  res.sendFile(__dirname + '/logs/index.html');
 });
 
-app.use('/iconic', express.static(path.resolve(__dirname + '/../APPLICATION_DATA/logs/iconic/svg')));
+app.use('/iconic', express.static(__dirname + '/logs/iconic/svg'));
 
 io.on('connection', function(socket){
   console.log('Client connected from ' + socket.handshake.address);

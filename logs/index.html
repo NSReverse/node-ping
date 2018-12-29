@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <title>Logs - ICMP Test Utility</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+	<style>
+	    .icon {
+		width: 1.5em;
+		height: 1.5em;
+	    }
+
+	    .icon-read {
+		fill: #2a2;
+	    }
+
+	    .icon-delete {
+		fill: #a22;
+	    }
+	</style>
+    </head>
+
+    <body class="container-fluid">
+	<div class="row" style="margin-top: 2em; margin-bottom: 2-em;">
+	<div class="col-2"></div>
+	<div class="col-8">
+	    <h2>System Logs</h2>
+	</div>
+	<div class="col-2"></div>
+	</div>
+	
+	<div class="row">
+	    <div class="col-2"></div>
+	    <div class="col-8">
+	    <table class="table table-bordered">
+		<thead>
+		    <tr>
+			<th scope="col" class="text-center">Filename</th>
+			<th scope="col" class="text-center">Read</th>
+			<th scope="col" class="text-center">Delete</th>
+		    </tr>
+		</thead>
+		<tbody id="logs"></tbody>
+	    </table>
+	    </div>
+	    <div class="col-2"></div>
+	</div>
+
+	<div class="modal" role="dialog" id="log-modal">
+	    <div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+		<div class="modal-header">
+		    <h5 class="modal-title" id="title-text"></h5>
+		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		    </button>
+		</div>
+
+		<div class="modal-body">
+		    <span id="body-text" style="white-space: pre;"></span>
+		</div>
+
+		<div class="modal-footer">
+		    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		</div>
+		</div>
+	    </div>
+	</div>
+
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script>
+	    var socket;
+	    var selectedItem;
+
+	    var requestLog = function(logName) {
+		selectedItem = logName;
+		socket.emit('request-read-log', logName);
+	    };
+
+	    var deleteLog = function(logName) {
+		socket.emit('request-delete-log', logName);
+	    };
+
+	    var applyFiltersToLogs = function(logs, filters) {
+		for (var i = 0; i < filters.length; i++) {
+		    var indexOfFilter = logs.indexOf(filters[i]);
+		    logs.splice(indexOfFilter, 1);
+		}
+
+		return logs;
+	    };
+	
+	    $(function () {
+		const KEY_LISTINGS_RECEIVED = "listings-received";
+		const KEY_UPDATE_BROADCAST = "update-broadcast";
+		const KEY_REQUEST_LISTINGS = "request-listings";
+		const KEY_REQUEST_READ = "request-read-log";
+		const KEY_REQUEST_READ_COMPLETE = "request-read-log-complete";
+		const KEY_REQUEST_DELETE = "request-delete-log";
+
+		var directoryListing = [];
+
+		socket = io();
+		
+		socket.on(KEY_LISTINGS_RECEIVED, function(listings) {
+		    $('tbody tr').remove();
+
+		    // applyFiltersToLogs(listings, ["index.html", "iconic", ".index.html.swp"]);
+
+		    for (var i = 0; i < listings.length; i++) {
+			$("#logs").append($("<tr><td>" + listings[i] + "</td>" + 
+				"<td class='text-center'>" + 
+					"<img class='icon icon-read' src='./iconic/spreadsheet.svg' onclick='requestLog(\"" + listings[i] + "\")' />" + 
+				"</td>" + 
+				"<td class='text-center'>" + 
+					"<img class='icon icon-delete' src='./iconic/trash.svg' onclick='deleteLog(\"" + listings[i] + "\")' />" + 
+				"</td></tr>"));
+		    }
+		});
+
+		socket.on(KEY_UPDATE_BROADCAST, function() {
+		    socket.emit(KEY_REQUEST_LISTINGS);
+		});
+
+		socket.on(KEY_REQUEST_READ_COMPLETE, function(logData) {
+		    $('#title-text').text(selectedItem + " - View Logs");
+		    $('#body-text').text(logData);
+		    $('#log-modal').modal("show");
+		});
+
+		socket.emit(KEY_REQUEST_LISTINGS);
+	    });
+	</script>
+    </body>
+</html>
